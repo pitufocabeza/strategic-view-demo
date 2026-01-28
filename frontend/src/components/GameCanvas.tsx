@@ -19,6 +19,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [camera, setCamera] = useState<Camera>({ x: 0, y: 0, zoom: 1 });
   const [chunks, setChunks] = useState<Map<string, Chunk>>(new Map());
+  const loadedChunksRef = useRef<Set<string>>(new Set());
   const [hoveredTile, setHoveredTile] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
@@ -27,16 +28,18 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   // Load chunk from API
   const loadChunk = useCallback(async (chunkX: number, chunkY: number) => {
     const key = `${chunkX},${chunkY}`;
-    if (chunks.has(key)) return;
+    if (loadedChunksRef.current.has(key)) return;
 
+    loadedChunksRef.current.add(key);
     try {
       const response = await fetch(`${API_URL}/chunk/${chunkX}/${chunkY}`);
       const chunk: Chunk = await response.json();
       setChunks(prev => new Map(prev).set(key, chunk));
     } catch (error) {
       console.error('Error loading chunk:', error);
+      loadedChunksRef.current.delete(key);
     }
-  }, [chunks]);
+  }, []);
 
   // Calculate visible chunks and load them
   useEffect(() => {

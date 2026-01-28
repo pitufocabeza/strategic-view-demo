@@ -1,13 +1,36 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import asyncio
 import json
 from typing import List
 from world_generator import WorldGenerator
 from game_state import game_state, GameState
 
+
+async def game_loop():
+    """Main game loop - runs every second"""
+    while True:
+        await asyncio.sleep(1.0)
+        game_state.tick()
+        await broadcast_update({
+            "type": "tick",
+            "data": game_state.get_state_snapshot()
+        })
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown events"""
+    # Startup
+    task = asyncio.create_task(game_loop())
+    yield
+    # Shutdown
+    task.cancel()
+
+
 # Create FastAPI app
-app = FastAPI(title="Space Mining Strategy API")
+app = FastAPI(title="Space Mining Strategy API", lifespan=lifespan)
 
 # Add CORS middleware
 app.add_middleware(
@@ -30,24 +53,8 @@ async def broadcast_update(message: dict):
     for connection in active_connections:
         try:
             await connection.send_json(message)
-        except:
-            pass
-
-
-async def game_loop():
-    """Main game loop - runs every second"""
-    while True:
-        await asyncio.sleep(1.0)
-        game_state.tick()
-        await broadcast_update({
-            "type": "tick",
-            "data": game_state.get_state_snapshot()
-        })
-
-
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(game_loop())
+        except Exception as e:
+            print(f"Error broadcasting to client: {e}")
 
 
 @app.get("/")

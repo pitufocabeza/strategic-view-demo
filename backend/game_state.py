@@ -3,6 +3,12 @@ from dataclasses import dataclass, asdict, field
 from datetime import datetime
 
 
+# Starting resources for new players
+STARTING_IRON = 100
+STARTING_COPPER = 50
+STARTING_COAL = 30
+
+
 @dataclass
 class Building:
     id: str
@@ -40,7 +46,7 @@ class GameState:
             self.players[player_id] = Player(
                 id=player_id,
                 username=username,
-                resources={"iron": 100, "copper": 50, "coal": 30},
+                resources={"iron": STARTING_IRON, "copper": STARTING_COPPER, "coal": STARTING_COAL},
                 buildings_count=0,
                 production_per_minute={}
             )
