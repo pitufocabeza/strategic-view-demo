@@ -72,7 +72,18 @@ async def join_game(username: str, player_id: str):
 @app.post("/api/building/place")
 async def place_building(player_id: str, x: int, y: int, building_type: str):
     """Place a building on the map"""
-    result = game_state.place_building(player_id, x, y, building_type)
+    # For miners, determine output resource from tile
+    tile_resource = None
+    if building_type == "miner":
+        chunk_x = x // 32
+        chunk_y = y // 32
+        chunk = world_gen.generate_chunk(chunk_x, chunk_y)
+        for tile in chunk["tiles"]:
+            if tile["x"] == x and tile["y"] == y:
+                tile_resource = tile["resource"]
+                break
+    
+    result = game_state.place_building(player_id, x, y, building_type, tile_resource)
     
     if result["success"]:
         # Broadcast building placement to all clients

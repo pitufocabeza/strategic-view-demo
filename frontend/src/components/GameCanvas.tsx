@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Building, Chunk, Camera } from '../types';
+import type { Building, Chunk, Camera } from '../types';
 import { useAudio } from '../hooks/useAudio';
 
 interface GameCanvasProps {
@@ -22,7 +22,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
   const [hoveredTile, setHoveredTile] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
-  const { playBuildingPlaced, playError, playHover } = useAudio();
+  const { playBuildingPlaced, playError } = useAudio();
 
   // Load chunk from API
   const loadChunk = useCallback(async (chunkX: number, chunkY: number) => {

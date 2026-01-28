@@ -46,7 +46,7 @@ class GameState:
             )
         return self.players[player_id]
     
-    def place_building(self, player_id: str, x: int, y: int, building_type: str) -> Dict:
+    def place_building(self, player_id: str, x: int, y: int, building_type: str, tile_resource: Optional[str] = None) -> Dict:
         """Place a building at the specified coordinates"""
         # Check if player exists
         if player_id not in self.players:
@@ -64,7 +64,7 @@ class GameState:
             "miner": {
                 "cost": {"iron": 10, "copper": 5},
                 "input_resource": None,
-                "output_resource": None,  # Will be determined by tile
+                "output_resource": tile_resource,  # Determined by tile
                 "production_rate": 1.0,
                 "health": 100
             },

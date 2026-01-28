@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { GameState } from '../types';
+import type { GameState } from '../types';
 
 const WS_URL = 'ws://localhost:8000/ws';
 const API_URL = 'http://localhost:8000/api';
